@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+  "io/ioutil"
 
 	qrcode "github.com/skip2/go-qrcode"
 )
@@ -40,12 +41,22 @@ Usage:
 	}
 	flag.Parse()
 
-	if len(flag.Args()) == 0 {
+  var content string
+
+  if len(flag.Args()) == 0 {
+    dat, err := ioutil.ReadAll(os.Stdin)
+    if err != nil {
+      checkError(fmt.Errorf("Error: failed read from stdin (%v)", err))
+    }
+    content = string(dat)
+  } else {
+    content = strings.Join(flag.Args(), " ")
+  }
+
+	if len(content) == 0 {
 		flag.Usage()
 		checkError(fmt.Errorf("Error: no content given"))
 	}
-
-	content := strings.Join(flag.Args(), " ")
 
 	var err error
 	var q *qrcode.QRCode
